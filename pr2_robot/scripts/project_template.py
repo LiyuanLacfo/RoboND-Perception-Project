@@ -48,6 +48,7 @@ def send_to_yaml(yaml_filename, dict_list):
 
 # Callback function for your Point Cloud Subscriber
 def pcl_callback(pcl_msg):
+    point_cloud_pub.publish(pcl_msg)
 
 # Exercise-2 TODOs:
 
@@ -90,10 +91,10 @@ def pcl_callback(pcl_msg):
     # Suggested location for where to invoke your pr2_mover() function within pcl_callback()
     # Could add some logic to determine whether or not your object detections are robust
     # before calling pr2_mover()
-    try:
-        pr2_mover(detected_objects_list)
-    except rospy.ROSInterruptException:
-        pass
+    # try:
+    #     pr2_mover(detected_objects_list)
+    # except rospy.ROSInterruptException:
+    #     pass
 
 # function to load parameters and request PickPlace service
 def pr2_mover(object_list):
@@ -137,10 +138,13 @@ def pr2_mover(object_list):
 if __name__ == '__main__':
 
     # TODO: ROS node initialization
+    rospy.init_node("object_recog", anonymous=True)
 
     # TODO: Create Subscribers
+    point_cloud_sub = rospy.Subscriber("/pr2/world/points", pc2.PointCloud2, pcl_callback, queue_size=10)
 
     # TODO: Create Publishers
+    point_cloud_pub = rospy.Publisher("/point_cloud", pc2.PointCloud2, queue_size=10)
 
     # TODO: Load Model From disk
 
@@ -148,3 +152,5 @@ if __name__ == '__main__':
     get_color_list.color_list = []
 
     # TODO: Spin while node is not shutdown
+    while not rospy.is_shutdown():
+        rospy.spin()
